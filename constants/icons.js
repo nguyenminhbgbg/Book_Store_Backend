@@ -31,6 +31,8 @@ export const unEye_icon = require("../assets/icons/uneye_icon.png");
 export const check_icon = require("../assets/icons/check_icon.png");
 export const face_book_icon = require("../assets/icons/face_book_icon.png");
 export const user_icon = require("../assets/icons/user_icon.png");
+export const mess_icon = require("../assets/icons/messenger.png");
+export const fb_black_icon = require("../assets/icons/fb_black.png");
 
 export default {
     card_icon,
@@ -62,5 +64,7 @@ export default {
     unEye_icon,
     check_icon,
     face_book_icon,
-    user_icon
+    user_icon,
+    mess_icon,
+    fb_black_icon
 }

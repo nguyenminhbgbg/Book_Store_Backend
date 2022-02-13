@@ -33,7 +33,7 @@ const Notification = ({ navigation }) => {
             >
                 {/* Book Cover */}
                 <Image
-                    source={{uri: item.bookCover}}
+                    source={{uri: `http://10.0.2.2:3000${item.bookCover}`}}
                     resizeMode="cover"
                     style={{ width: 100, height: 150, borderRadius: 10 }}
                 />

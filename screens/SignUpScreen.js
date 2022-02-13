@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React,{ useRef,useEffect } from "react";
 import { 
     View, 
     Text, 
@@ -9,11 +9,14 @@ import {
     StyleSheet,
     ScrollView,
     StatusBar,
-    Alert
+    Alert,
+    Keyboard, 
+    TouchableWithoutFeedback
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import * as Animatable from 'react-native-animatable';
 import { COLORS, icons } from '../constants';
+import { useTheme } from 'react-native-paper';
 
 import { useSelector, useDispatch } from 'react-redux';
 import { signUpAction } from '../redux/actions';
@@ -25,13 +28,10 @@ const SignInScreen = ({navigation}) => {
 
     const SignUpAction = (name, email, pass) => dispatch(signUpAction( name ,email, pass));
 
-    useEffect(() => {
-        if(mesRegister != null )
-        setTimeout( async () => {
-            Alert.alert('Thông báo' + mesRegister);
-        }, 1000);
-        
-    }, [mesRegister]);
+    const txtNameRef = useRef();
+    const txtEmailRef = useRef();
+    const txtPassWordRef = useRef();
+    const txtConPassWordRef = useRef();
 
     const [data, setData] = React.useState({
         name: '',
@@ -49,7 +49,9 @@ const SignInScreen = ({navigation}) => {
     });
 
     function SigUpUserPost() {
-        SignUpAction(data.name , data.username, data.password);
+        if(data.isValidName && data.isValidUser && data.isValidPassword && data.isValidConfirmPassword){
+            SignUpAction(data.name , data.username, data.password);
+        }
     }
 
     const textInputChange = (val) => {
@@ -134,223 +136,237 @@ const SignInScreen = ({navigation}) => {
     }
 
     return (
-      <View style={styles.container}>
-          <StatusBar backgroundColor='#009387' barStyle="light-content"/>
-        <View style={styles.header}>
-            <Text style={styles.text_header}>Đăng ký tài khoản!</Text>
-        </View>
-        <View 
-            animation="fadeInUpBig"
-            style={styles.footer}
-        >
-            <ScrollView>
-            <Text style={styles.text_footer}>Tên người dùng</Text>
-            <View style={styles.action}>
-                <Image
-                source={icons.user_icon}
-                resizeMode="contain"
-                style={{
-                    width: 20,
-                    height: 20,
-                    tintColor: COLORS.lightGreen
-                }}
-                />
-                <TextInput 
-                    placeholder="Tên đầy đủ"
-                    style={styles.textInput}
-                    autoCapitalize="none"
-                    onChangeText={(val) => NameInputChange(val)}
-                />
-            </View>
-            { data.isValidName ? null : 
-            <Animatable.View animation="fadeInLeft" duration={500}>
-            <Text style={styles.errorMsg}>Tên người dùng có độ tài tối thiểu 4 ký tự!</Text>
-            </Animatable.View>
-            }
-            <Text style={[styles.text_footer, {
-                marginTop: 35
-            }]}>Tài khoản</Text>
-            <View style={styles.action}>
-                <Image
-                    source={icons.email_icon}
-                    resizeMode="contain"
-                    style={{
-                        width: 25,
-                        height: 25,
-                        tintColor: COLORS.lightGreen
-                    }}
-                />
-                <TextInput 
-                    placeholder="Your Username"
-                    style={styles.textInput}
-                    autoCapitalize="none"
-                    onChangeText={(val) => textInputChange(val)}
-                />
-                {data.check_textInputChange ? 
-                <View
-                    animation="bounceIn"
-                >
-                    <Image
-                        source={icons.check_icon}
-                        resizeMode="contain"
-                        style={{
-                            width: 25,
-                            height: 25,
-                            tintColor: COLORS.lightGreen
-                        }}
-                    />
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+            <View style={styles.container}>
+                <StatusBar backgroundColor='#009387' barStyle="light-content"/>
+                <View style={styles.header}>
+                    <Text style={styles.text_header}>Đăng ký tài khoản!</Text>
                 </View>
-                : null}
-            </View>
-            { data.isValidUser ? null : 
-                <Animatable.View animation="fadeInLeft" duration={500}>
-                <Text style={styles.errorMsg}>Tài khoản có độ dài tối thiểu 6 kí tự và dạng email!</Text>
-                </Animatable.View>
-                }
-
-            <Text style={[styles.text_footer, {
-                marginTop: 35
-            }]}>Mật khẩu</Text>
-            <View style={styles.action}>
-                <Image
-                    source={icons.pass_word}
-                    resizeMode="contain"
-                    style={{
-                        width: 28,
-                        height: 28,
-                        tintColor: COLORS.lightGreen
-                    }}
-                />
-                <TextInput 
-                    placeholder="Your Password"
-                    secureTextEntry={data.secureTextEntry ? true : false}
-                    style={styles.textInput}
-                    autoCapitalize="none"
-                    onChangeText={(val) => handlePasswordChange(val)}
-                />
-                <TouchableOpacity
-                    onPress={updateSecureTextEntry}
+                <Animatable.View 
+                    animation="fadeInUpBig"
+                    style={styles.footer}
                 >
-                    {data.secureTextEntry ? 
-                    <Image
-                        source={icons.unEye_icon}
+                    <ScrollView>
+                    <Text style={styles.text_footer}>Tên người dùng</Text>
+                    <View style={styles.action}>
+                        <Image
+                        source={icons.user_icon}
                         resizeMode="contain"
                         style={{
-                            width: 25,
-                            height: 25,
+                            width: 20,
+                            height: 20,
                             tintColor: COLORS.lightGreen
                         }}
-                    />
-                    :
-                    <Image
-                        source={icons.eys_icon}
-                        resizeMode="contain"
-                        style={{
-                            width: 25,
-                            height: 25,
-                            tintColor: COLORS.lightGreen
-                        }}
-                    />
+                        />
+                        <TextInput 
+                            placeholder="Tên đầy đủ"
+                            style={styles.textInput}
+                            autoCapitalize="none"
+                            onChangeText={(val) => NameInputChange(val)}
+                            returnKeyType="next"
+                            onSubmitEditing={() => txtEmailRef.current.focus()}
+                            ref={txtNameRef}
+                        />
+                    </View>
+                    { data.isValidName ? null : 
+                    <Animatable.View animation="fadeInLeft" duration={500}>
+                    <Text style={styles.errorMsg}>Tên người dùng có độ tài tối thiểu 4 ký tự!</Text>
+                    </Animatable.View>
                     }
-                </TouchableOpacity>
-            </View>
-            { data.isValidPassword ? null : 
-                <Animatable.View animation="fadeInLeft" duration={500}>
-                <Text style={styles.errorMsg}>Mật khẩu có độ tài tối thiểu 6 ký tự!</Text>
-                </Animatable.View>
-                }
+                    <Text style={[styles.text_footer, {
+                        marginTop: 35
+                    }]}>Tài khoản</Text>
+                    <View style={styles.action}>
+                        <Image
+                            source={icons.email_icon}
+                            resizeMode="contain"
+                            style={{
+                                width: 25,
+                                height: 25,
+                                tintColor: COLORS.lightGreen
+                            }}
+                        />
+                        <TextInput 
+                            placeholder="Your Username"
+                            style={styles.textInput}
+                            autoCapitalize="none"
+                            onChangeText={(val) => textInputChange(val)}
+                            returnKeyType="next"
+                            onSubmitEditing={() => txtPassWordRef.current.focus()}
+                            ref={txtEmailRef}
+                        />
+                        {data.check_textInputChange ? 
+                        <View
+                            animation="bounceIn"
+                        >
+                            <Image
+                                source={icons.check_icon}
+                                resizeMode="contain"
+                                style={{
+                                    width: 25,
+                                    height: 25,
+                                    tintColor: COLORS.lightGreen
+                                }}
+                            />
+                        </View>
+                        : null}
+                    </View>
+                    { data.isValidUser ? null : 
+                        <Animatable.View animation="fadeInLeft" duration={500}>
+                        <Text style={styles.errorMsg}>Tài khoản có độ dài tối thiểu 6 kí tự và dạng email!</Text>
+                        </Animatable.View>
+                        }
 
-            <Text style={[styles.text_footer, {
-                marginTop: 35
-            }]}>Xác nhận mật khẩu</Text>
-            <View style={styles.action}>
-                <Image
-                    source={icons.pass_word}
-                    resizeMode="contain"
-                    style={{
-                        width: 25,
-                        height: 25,
-                        tintColor: COLORS.lightGreen
-                    }}
-                    />
-                <TextInput 
-                    placeholder="Confirm Your Password"
-                    secureTextEntry={data.confirm_secureTextEntry ? true : false}
-                    style={styles.textInput}
-                    autoCapitalize="none"
-                    onChangeText={(val) => handleConfirmPasswordChange(val)}
-                />
-                <TouchableOpacity
-                    onPress={updateConfirmSecureTextEntry}
-                >
-                    {data.secureTextEntry ? 
-                    <Image
-                        source={icons.unEye_icon}
-                        resizeMode="contain"
-                        style={{
-                            width: 25,
-                            height: 25,
-                            tintColor: COLORS.lightGreen
-                        }}
-                    />
-                    :
-                    <Image
-                        source={icons.eys_icon}
-                        resizeMode="contain"
-                        style={{
-                            width: 25,
-                            height: 25,
-                            tintColor: COLORS.lightGreen
-                        }}
-                    />
+                    <Text style={[styles.text_footer, {
+                        marginTop: 35
+                    }]}>Mật khẩu</Text>
+                    <View style={styles.action}>
+                        <Image
+                            source={icons.pass_word}
+                            resizeMode="contain"
+                            style={{
+                                width: 28,
+                                height: 28,
+                                tintColor: COLORS.lightGreen
+                            }}
+                        />
+                        <TextInput 
+                            placeholder="Your Password"
+                            secureTextEntry={data.secureTextEntry ? true : false}
+                            style={styles.textInput}
+                            autoCapitalize="none"
+                            onChangeText={(val) => handlePasswordChange(val)}
+                            onSubmitEditing={() => txtConPassWordRef.current.focus()}
+                            returnKeyType="next"
+                            ref={txtPassWordRef}
+                        />
+                        <TouchableOpacity
+                            onPress={updateSecureTextEntry}
+                        >
+                            {data.secureTextEntry ? 
+                            <Image
+                                source={icons.unEye_icon}
+                                resizeMode="contain"
+                                style={{
+                                    width: 25,
+                                    height: 25,
+                                    tintColor: COLORS.lightGreen
+                                }}
+                            />
+                            :
+                            <Image
+                                source={icons.eys_icon}
+                                resizeMode="contain"
+                                style={{
+                                    width: 25,
+                                    height: 25,
+                                    tintColor: COLORS.lightGreen
+                                }}
+                            />
+                            }
+                        </TouchableOpacity>
+                    </View>
+                    { data.isValidPassword ? null : 
+                        <Animatable.View animation="fadeInLeft" duration={500}>
+                        <Text style={styles.errorMsg}>Mật khẩu có độ tài tối thiểu 6 ký tự!</Text>
+                        </Animatable.View>
+                        }
+
+                    <Text style={[styles.text_footer, {
+                        marginTop: 35
+                    }]}>Xác nhận mật khẩu</Text>
+                    <View style={styles.action}>
+                        <Image
+                            source={icons.pass_word}
+                            resizeMode="contain"
+                            style={{
+                                width: 25,
+                                height: 25,
+                                tintColor: COLORS.lightGreen
+                            }}
+                            />
+                        <TextInput 
+                            placeholder="Confirm Your Password"
+                            secureTextEntry={data.confirm_secureTextEntry ? true : false}
+                            style={styles.textInput}
+                            autoCapitalize="none"
+                            onChangeText={(val) => handleConfirmPasswordChange(val)}
+                            ref={txtConPassWordRef}
+                            returnKeyType="go"
+                        />
+                        <TouchableOpacity
+                            onPress={updateConfirmSecureTextEntry}
+                        >
+                            {data.secureTextEntry ? 
+                            <Image
+                                source={icons.unEye_icon}
+                                resizeMode="contain"
+                                style={{
+                                    width: 25,
+                                    height: 25,
+                                    tintColor: COLORS.lightGreen
+                                }}
+                            />
+                            :
+                            <Image
+                                source={icons.eys_icon}
+                                resizeMode="contain"
+                                style={{
+                                    width: 25,
+                                    height: 25,
+                                    tintColor: COLORS.lightGreen
+                                }}
+                            />
+                            }
+                        </TouchableOpacity>
+                    </View>
+                    { data.isValidConfirmPassword ? null : 
+                        <Animatable.View animation="fadeInLeft" duration={500}>
+                        <Text style={styles.errorMsg}>Xác nhận mật khẩu chưa trùng khớp!</Text>
+                        </Animatable.View>
+                        }
+                    { mesRegister !=='Thêm tài khoản thành công!' ? <Animatable.View animation="fadeInLeft" duration={500}>
+                        <Text style={styles.errorMsg}>{mesRegister}</Text>
+                        </Animatable.View> : null
                     }
-                </TouchableOpacity>
-            </View>
-            { data.isValidConfirmPassword ? null : 
-                <Animatable.View animation="fadeInLeft" duration={500}>
-                <Text style={styles.errorMsg}>Xác nhận mật khẩu chưa trùng khớp!</Text>
-                </Animatable.View>
-                }
-            <View style={styles.textPrivate}>
-                <Text style={styles.color_textPrivate}>
-                    By signing up you agree to our
-                </Text>
-                <Text style={[styles.color_textPrivate, {fontWeight: 'bold'}]}>{" "}Terms of service</Text>
-                <Text style={styles.color_textPrivate}>{" "}and</Text>
-                <Text style={[styles.color_textPrivate, {fontWeight: 'bold'}]}>{" "}Privacy policy</Text>
-            </View>
-            <View style={styles.button}>
-                <TouchableOpacity
-                    style={styles.signIn}
-                    onPress={() => SigUpUserPost() }
-                    
-                >
-                <LinearGradient
-                    colors={['#08d4c4', '#01ab9d']}
-                    style={styles.signIn}
-                >
-                    <Text style={[styles.textSign, {
-                        color:'#fff'
-                    }]}>Đăng Ký tài khoản</Text>
-                </LinearGradient>
-                </TouchableOpacity>
+                    <View style={styles.button}>
+                        <TouchableOpacity
+                            style={styles.signIn}
+                            onPress={() => {
+                                SigUpUserPost()
+                                if(mesRegister === 'Thêm tài khoản thành công!'){
+                                    navigation.goBack()
+                                }
+                            }  }
+                            
+                        >
+                        <LinearGradient
+                            colors={['#08d4c4', '#01ab9d']}
+                            style={styles.signIn}
+                        >
+                            <Text style={[styles.textSign, {
+                                color:'#fff'
+                            }]}>Đăng Ký tài khoản</Text>
+                        </LinearGradient>
+                        </TouchableOpacity>
 
-                <TouchableOpacity
-                    onPress={() => navigation.goBack()}
-                    style={[styles.signIn, {
-                        borderColor: '#009387',
-                        borderWidth: 1,
-                        marginTop: 15
-                    }]}
-                >
-                    <Text style={[styles.textSign, {
-                        color: '#009387'
-                    }]}>Đăng nhập</Text>
-                </TouchableOpacity>
+                        <TouchableOpacity
+                            onPress={() => navigation.goBack()}
+                            style={[styles.signIn, {
+                                borderColor: '#009387',
+                                borderWidth: 1,
+                                marginTop: 15
+                            }]}
+                        >
+                            <Text style={[styles.textSign, {
+                                color: '#009387'
+                            }]}>Đăng nhập</Text>
+                        </TouchableOpacity>
+                    </View>
+                    </ScrollView>
+                </Animatable.View>
             </View>
-            </ScrollView>
-        </View>
-      </View>
+        </TouchableWithoutFeedback>
     );
 };
 
