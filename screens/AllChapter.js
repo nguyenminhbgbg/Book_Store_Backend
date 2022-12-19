@@ -67,7 +67,7 @@ const AllChapter = ({ route, navigation }) => {
               renderItem={renderItem}
               showsVerticalScrollIndicator={false}
             />
-          </View>
+        </View>
       </SafeAreaView>
   );
 }

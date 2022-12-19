@@ -1,16 +1,39 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {StyleSheet, Text, View, Image, TouchableOpacity, FlatList} from 'react-native';
 import { AuthContext } from '../components/context';
 import { icons, COLORS, SIZES, FONTS } from "../constants";
-import Icon from 'react-native-vector-icons/Ionicons';
+import { useSelector, useDispatch } from 'react-redux';
+import { logOutAction } from '../redux/actions';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Setting = ({ navigation }) => {
+  const dispatch = useDispatch();
+  const LogOutAction = () => dispatch(logOutAction());
+
   const { signOut } = React.useContext(AuthContext);
   const arrInfoCard = [
     { _id:1 ,nameIcon: icons.Home_icon, name: 'Trang chủ', navi: 'Home'},
     { _id:2 ,nameIcon: icons.search_icon, name: 'Tìm kiếm', navi: 'Search'},
     { _id:3 ,nameIcon: icons.bookmark_icon , name: 'Thư viện sách', navi: 'Notification'},
+    { _id:4 ,nameIcon: icons.fb_black_icon , name: 'Fanpage', navi: ''},
+    { _id:5 ,nameIcon: icons.mess_icon , name: 'nhóm giao lưu', navi: ''},
+
   ];
+  const [userInfo, setUserInfo] = React.useState(null);
+
+  useEffect(() => {
+      getDataUserInfo();
+  }, [userInfo]);
+
+  const getDataUserInfo = () =>{
+      try {
+        AsyncStorage.getItem("user_info").then((value) => {
+            value != null ? setUserInfo(JSON.parse(value)) : null
+        });
+      } catch (error) {
+          console.log(error);
+      }
+  }
 
   const renderItem = ({ item }) => {
     return (
@@ -44,26 +67,31 @@ const Setting = ({ navigation }) => {
           resizeMode="cover"
           style={styles.avatar}
         />
-        <View style={styles.info}>
-          <View style={styles.nameAndEdit}>
-            <Text style={styles.name}>Nguyễn Thị Khánh Linh</Text>
-            <TouchableOpacity
-              color={COLORS.primary}
-              style={styles.buttonEdit}
-              onPress={() => console.log('edit my info')}>
-              <Image
-                source={icons.Edit_icon}
-                resizeMode="contain"
-                style={{
-                    width: 20,
-                    height: 24,
-                    tintColor: COLORS.lightGray
-                }}
-              />
-            </TouchableOpacity>
+        { userInfo != null ?(
+            <View style={styles.info}>
+            <View style={styles.nameAndEdit}>
+              <Text style={styles.name}>{userInfo.name}</Text>
+              <TouchableOpacity
+                color={COLORS.primary}
+                style={styles.buttonEdit}
+                onPress={() => console.log('edit my info')}>
+                <Image
+                  source={icons.Edit_icon}
+                  resizeMode="contain"
+                  style={{
+                      width: 20,
+                      height: 24,
+                      tintColor: COLORS.lightGray
+                  }}
+                />
+              </TouchableOpacity>
+            </View>
+            <Text style={styles.email}>{userInfo.email}</Text>
           </View>
-          <Text style={styles.email}>khanhlinh@gmail.com</Text>
-        </View>
+            ):
+            null
+        }
+        
       </View>
 
       <View style={{ flex: 1, marginTop: 8 }}>
@@ -76,7 +104,7 @@ const Setting = ({ navigation }) => {
           </View>
       <TouchableOpacity
         style={styles.logOut}
-        onPress ={() =>{signOut()}}
+        onPress ={() =>{signOut(), LogOutAction()}}
       >
         <Image
             source={icons.logout_icon}

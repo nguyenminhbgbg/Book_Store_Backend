@@ -32,6 +32,13 @@ export const DARK_MODE = 'DARK_MODE';
 
 export const LOGIN_ACTION = 'LOGIN_ACTION';
 export const SIGN_UP_ACTION = 'SIGN_UP_ACTION';
+export const LOGOUT_ACTION = 'LOGOUT_ACTION';
+
+export const logOutAction = () => dispatch => {
+  dispatch({
+    type: LOGOUT_ACTION,
+  });
+};
 
 export const getBooks = () => {
   try {
@@ -141,10 +148,10 @@ export const cancelSearch = () => dispatch => {
   });
 };
 
-export const getDetailBook = bookId => {
+export const getDetailBook = book => {
   try {
     return async dispatch => {
-      const response = await axios.get(`${CHAPTER_URL}/${bookId._id}`);
+      const response = await axios.get(`${CHAPTER_URL}/${book._id}`);
       // console.log('DATA ========>', response.data);
       if (response.data) {
         dispatch({

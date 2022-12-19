@@ -1,534 +1,428 @@
-import * as React from 'react';
-import { Button, View, Text,Image,TextInput,TouchableOpacity,ScrollView, ImageBackground } from 'react-native';
-import {Modalize} from 'react-native-modalize'
+import React, {useEffect} from 'react';
+import { 
+    View, 
+    Text, 
+    TouchableOpacity, 
+    Image,
+    TextInput,
+    Platform,
+    StyleSheet,
+    ScrollView,
+    StatusBar,
+    Alert
+} from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
+import * as Animatable from 'react-native-animatable';
+import { COLORS, icons } from '../constants';
+
+import { useSelector, useDispatch } from 'react-redux';
+import { signUpAction } from '../redux/actions';
+
+const SignInScreen = ({navigation}) => {
+
+    const { mesRegister } = useSelector(state => state.booksReducer);
+    const dispatch = useDispatch();
+
+    const SignUpAction = (name, email, pass) => dispatch(signUpAction( name ,email, pass));
+
+    useEffect(() => {
+        if(mesRegister != null )
+        setTimeout( async () => {
+            Alert.alert('Thông báo' + mesRegister);
+        }, 1000);
+        
+    }, [mesRegister]);
+
+    const [data, setData] = React.useState({
+        name: '',
+        username: '',
+        password: '',
+        confirm_password: '',
+        check_textInputChange: false,
+        secureTextEntry: true,
+        confirm_secureTextEntry: true,
+
+        isValidName: true,
+        isValidUser: true,
+        isValidPassword: true,
+        isValidConfirmPassword: true,
+    });
+
+    function SigUpUserPost() {
+        SignUpAction(data.name , data.username, data.password);
+    }
+
+    const textInputChange = (val) => {
+        const re = /\S+@\S+\.\S+/;
+        if( val.trim().length >= 6 && re.test(val) ) {
+            setData({
+                ...data,
+                username: val,
+                check_textInputChange: true,
+                isValidUser: true
+            });
+        } else {
+            setData({
+                ...data,
+                username: val,
+                check_textInputChange: false,
+                isValidUser: false
+            });
+        }
+    }
+    const NameInputChange = (val) => {
+        if( val.trim().length >= 4 ) {
+            setData({
+                ...data,
+                name: val,
+                isValidName: true
+            });
+        } else {
+            setData({
+                ...data,
+                password: val,
+                isValidName: false
+            });
+        }
+    }
 
 
-function LearningScreen({ navigation }) {
+    const handlePasswordChange = (val) => {
+        if( val.trim().length >= 6 ) {
+            setData({
+                ...data,
+                password: val,
+                isValidPassword: true
+            });
+        } else {
+            setData({
+                ...data,
+                password: val,
+                isValidPassword: false
+            });
+        }
+    }
 
-    const renderItem = ({ item }) => {
-        return (
-            <TouchableOpacity
-                onPress={() => navigation.navigate('LearningList')}
-                    style={{
-                        flexDirection:"row",
-                        backgroundColor:"#fdddf3",
-                        padding:15,
-                        marginHorizontal:5,
-                        borderRadius:20,
-                        alignItems:"center",
-                        marginTop:5
-                    }}>
-                        <Image
-                        source={require('../images/unicorn.png')}
-                        style={{width:40,height:40}}
-                        />
-                        <View>
-                            <Text style={{
-                                color:"#345c74",
-                                fontFamily:"Bold",
-                                fontSize:13,
-                                paddingHorizontal:20,
-                                width:250
-                            }}>Thì của động từ(Verb tens)</Text>
-                            <Text style={{
-                                color:"#f58084",
-                                fontFamily:"Medium",
-                                fontSize:15,
-                                paddingHorizontal:20
-                            }}>
-                                Số bài: 23
-                            </Text>
-                        </View>
-                        <Image
-                        source={require('../images/pl.png')}
-                        style={{width:20,height:20}}
-                        />
-                </TouchableOpacity>
-            )
+    const handleConfirmPasswordChange = (val) => {
+        if( val.trim().length >= 6 && val.localeCompare(data.password)==0 ) {
+            setData({
+                ...data,
+                confirm_password: val,
+                isValidConfirmPassword: true
+            });
+        } else {
+            setData({
+                ...data,
+                confirm_password: val,
+                isValidConfirmPassword: false
+            });
+        }
+    }
+
+    const updateSecureTextEntry = () => {
+        setData({
+            ...data,
+            secureTextEntry: !data.secureTextEntry
+        });
+    }
+
+    const updateConfirmSecureTextEntry = () => {
+        setData({
+            ...data,
+            confirm_secureTextEntry: !data.confirm_secureTextEntry
+        });
     }
 
     return (
-        <ImageBackground
-        source={require('../images/background1.jpg')}
-        style={{width:"100%", height:"105%"}}
+      <View style={styles.container}>
+          <StatusBar backgroundColor='#009387' barStyle="light-content"/>
+        <View style={styles.header}>
+            <Text style={styles.text_header}>Đăng ký tài khoản!</Text>
+        </View>
+        <View 
+            animation="fadeInUpBig"
+            style={styles.footer}
         >
-        <ScrollView>
-            {/* Header + Title */}
-            <View style={{
-                width:"100%",
-                alignItems:"flex-end",
-                paddingHorizontal:20
-            }}>
-                
+            <ScrollView>
+            <Text style={styles.text_footer}>Tên người dùng</Text>
+            <View style={styles.action}>
+                <Image
+                source={icons.user_icon}
+                resizeMode="contain"
+                style={{
+                    width: 20,
+                    height: 20,
+                    tintColor: COLORS.lightGreen
+                }}
+                />
+                <TextInput 
+                    placeholder="Tên đầy đủ"
+                    style={styles.textInput}
+                    autoCapitalize="none"
+                    onChangeText={(val) => NameInputChange(val)}
+                />
             </View>
-            <Text style={{
-                paddingHorizontal:20,
-                fontSize:35,
-                paddingTop:40,
-                fontFamily:"Bold",
-                color:"#FFF"
-            }}>
-                LET START!!!
-            </Text>
-            <Text style={{
-                color:"#ffffff",
-                fontFamily:"Bold",
-                fontSize:20,
-                paddingHorizontal:20,
-                marginTop:5,
-                marginBottom:5
-            }}>Danh sách bài học:</Text> 
-            {/* End Title */}
-            {/* List Bài học */}
-            
-                <TouchableOpacity
-                onPress={() => navigation.navigate('LearningList')}
+            { data.isValidName ? null : 
+            <Animatable.View animation="fadeInLeft" duration={500}>
+            <Text style={styles.errorMsg}>Tên người dùng có độ tài tối thiểu 4 ký tự!</Text>
+            </Animatable.View>
+            }
+            <Text style={[styles.text_footer, {
+                marginTop: 35
+            }]}>Tài khoản</Text>
+            <View style={styles.action}>
+                <Image
+                    source={icons.email_icon}
+                    resizeMode="contain"
                     style={{
-                        flexDirection:"row",
-                        backgroundColor:"#fdddf3",
-                        padding:15,
-                        marginHorizontal:5,
-                        borderRadius:20,
-                        alignItems:"center",
-                        marginTop:5
-                    }}>
-                        <Image
-                        source={require('../images/unicorn.png')}
-                        style={{width:40,height:40}}
-                        />
-                        <View>
-                            <Text style={{
-                                color:"#345c74",
-                                fontFamily:"Bold",
-                                fontSize:13,
-                                paddingHorizontal:20,
-                                width:250
-                            }}>Thì của động từ(Verb tens)</Text>
-                            <Text style={{
-                                color:"#f58084",
-                                fontFamily:"Medium",
-                                fontSize:15,
-                                paddingHorizontal:20
-                            }}>
-                                Số bài: 23
-                            </Text>
-                        </View>
-                        <Image
-                        source={require('../images/pl.png')}
-                        style={{width:20,height:20}}
-                        />
-                </TouchableOpacity>
-                <TouchableOpacity
-                onPress={() => navigation.navigate('LearningList')}
+                        width: 25,
+                        height: 25,
+                        tintColor: COLORS.lightGreen
+                    }}
+                />
+                <TextInput 
+                    placeholder="Your Username"
+                    style={styles.textInput}
+                    autoCapitalize="none"
+                    onChangeText={(val) => textInputChange(val)}
+                />
+                {data.check_textInputChange ? 
+                <View
+                    animation="bounceIn"
+                >
+                    <Image
+                        source={icons.check_icon}
+                        resizeMode="contain"
+                        style={{
+                            width: 25,
+                            height: 25,
+                            tintColor: COLORS.lightGreen
+                        }}
+                    />
+                </View>
+                : null}
+            </View>
+            { data.isValidUser ? null : 
+                <Animatable.View animation="fadeInLeft" duration={500}>
+                <Text style={styles.errorMsg}>Tài khoản có độ dài tối thiểu 6 kí tự và dạng email!</Text>
+                </Animatable.View>
+                }
+
+            <Text style={[styles.text_footer, {
+                marginTop: 35
+            }]}>Mật khẩu</Text>
+            <View style={styles.action}>
+                <Image
+                    source={icons.pass_word}
+                    resizeMode="contain"
                     style={{
-                        flexDirection:"row",
-                        backgroundColor:"#fef8e3",
-                        padding:15,
-                        marginHorizontal:5,
-                        borderRadius:20,
-                        alignItems:"center",
-                        marginTop:5
-                    }}>
-                        <Image
-                        source={require('../images/unicorn.png')}
-                        style={{width:40,height:40}}
-                        />
-                        <View>
-                            <Text style={{
-                                color:"#345c74",
-                                fontFamily:"Bold",
-                                fontSize:13,
-                                paddingHorizontal:20,
-                                width:250
-                            }}>Động từ đặc biệt(Modal verbs)</Text>
-                            <Text style={{
-                                color:"#f58084",
-                                fontFamily:"Medium",
-                                fontSize:15,
-                                paddingHorizontal:20
-                            }}>
-                                Số bài: 11
-                            </Text>
-                        </View>
-                        <Image
-                        source={require('../images/pl.png')}
-                        style={{width:20,height:20}}
-                        />
-                </TouchableOpacity>
+                        width: 28,
+                        height: 28,
+                        tintColor: COLORS.lightGreen
+                    }}
+                />
+                <TextInput 
+                    placeholder="Your Password"
+                    secureTextEntry={data.secureTextEntry ? true : false}
+                    style={styles.textInput}
+                    autoCapitalize="none"
+                    onChangeText={(val) => handlePasswordChange(val)}
+                />
                 <TouchableOpacity
-                onPress={() => navigation.navigate('LearningList')}
-                    style={{
-                        flexDirection:"row",
-                        backgroundColor:"#fcf2ff",
-                        padding:15,
-                        marginHorizontal:5,
-                        borderRadius:20,
-                        alignItems:"center",
-                        marginTop:5
-                    }}>
-                        <Image
-                        source={require('../images/unicorn.png')}
-                        style={{width:40,height:40}}
-                        />
-                        <View>
-                            <Text style={{
-                                color:"#345c74",
-                                fontFamily:"Bold",
-                                fontSize:13,
-                                paddingHorizontal:20,
-                                width:250
-                            }}>Câu điều kiện(Conditionals)</Text>
-                            <Text style={{
-                                color:"#f58084",
-                                fontFamily:"Medium",
-                                fontSize:15,
-                                paddingHorizontal:20
-                            }}>
-                                Số bài: 6
-                            </Text>
-                        </View>
-                        <Image
-                        source={require('../images/pl.png')}
-                        style={{width:20,height:20}}
-                        />
+                    onPress={updateSecureTextEntry}
+                >
+                    {data.secureTextEntry ? 
+                    <Image
+                        source={icons.unEye_icon}
+                        resizeMode="contain"
+                        style={{
+                            width: 25,
+                            height: 25,
+                            tintColor: COLORS.lightGreen
+                        }}
+                    />
+                    :
+                    <Image
+                        source={icons.eys_icon}
+                        resizeMode="contain"
+                        style={{
+                            width: 25,
+                            height: 25,
+                            tintColor: COLORS.lightGreen
+                        }}
+                    />
+                    }
                 </TouchableOpacity>
+            </View>
+            { data.isValidPassword ? null : 
+                <Animatable.View animation="fadeInLeft" duration={500}>
+                <Text style={styles.errorMsg}>Mật khẩu có độ tài tối thiểu 6 ký tự!</Text>
+                </Animatable.View>
+                }
+
+            <Text style={[styles.text_footer, {
+                marginTop: 35
+            }]}>Xác nhận mật khẩu</Text>
+            <View style={styles.action}>
+                <Image
+                    source={icons.pass_word}
+                    resizeMode="contain"
+                    style={{
+                        width: 25,
+                        height: 25,
+                        tintColor: COLORS.lightGreen
+                    }}
+                    />
+                <TextInput 
+                    placeholder="Confirm Your Password"
+                    secureTextEntry={data.confirm_secureTextEntry ? true : false}
+                    style={styles.textInput}
+                    autoCapitalize="none"
+                    onChangeText={(val) => handleConfirmPasswordChange(val)}
+                />
                 <TouchableOpacity
-                onPress={() => navigation.navigate('LearningList')}
-                    style={{
-                        flexDirection:"row",
-                        backgroundColor:"#fff0ee",
-                        padding:15,
-                        marginHorizontal:5,
-                        borderRadius:20,
-                        alignItems:"center",
-                        marginTop:5
-                    }}>
-                        <Image
-                        source={require('../images/unicorn.png')}
-                        style={{width:40,height:40}}
-                        />
-                        <View>
-                            <Text style={{
-                                color:"#345c74",
-                                fontFamily:"Bold",
-                                fontSize:13,
-                                paddingHorizontal:20,
-                                width:250
-                            }}>Dạng bị động(Passive)</Text>
-                            <Text style={{
-                                color:"#f58084",
-                                fontFamily:"Medium",
-                                fontSize:15,
-                                paddingHorizontal:20
-                            }}>
-                                Số bài: 5
-                            </Text>
-                        </View>
-                        <Image
-                        source={require('../images/pl.png')}
-                        style={{width:20,height:20}}
-                        />
+                    onPress={updateConfirmSecureTextEntry}
+                >
+                    {data.secureTextEntry ? 
+                    <Image
+                        source={icons.unEye_icon}
+                        resizeMode="contain"
+                        style={{
+                            width: 25,
+                            height: 25,
+                            tintColor: COLORS.lightGreen
+                        }}
+                    />
+                    :
+                    <Image
+                        source={icons.eys_icon}
+                        resizeMode="contain"
+                        style={{
+                            width: 25,
+                            height: 25,
+                            tintColor: COLORS.lightGreen
+                        }}
+                    />
+                    }
                 </TouchableOpacity>
+            </View>
+            { data.isValidConfirmPassword ? null : 
+                <Animatable.View animation="fadeInLeft" duration={500}>
+                <Text style={styles.errorMsg}>Xác nhận mật khẩu chưa trùng khớp!</Text>
+                </Animatable.View>
+                }
+            <View style={styles.textPrivate}>
+                <Text style={styles.color_textPrivate}>
+                    By signing up you agree to our
+                </Text>
+                <Text style={[styles.color_textPrivate, {fontWeight: 'bold'}]}>{" "}Terms of service</Text>
+                <Text style={styles.color_textPrivate}>{" "}and</Text>
+                <Text style={[styles.color_textPrivate, {fontWeight: 'bold'}]}>{" "}Privacy policy</Text>
+            </View>
+            <View style={styles.button}>
                 <TouchableOpacity
-                onPress={() => navigation.navigate('LearningList')}
-                    style={{
-                        flexDirection:"row",
-                        backgroundColor:"#fdddf3",
-                        padding:15,
-                        marginHorizontal:5,
-                        borderRadius:20,
-                        alignItems:"center",
-                        marginTop:5
-                    }}>
-                        <Image
-                        source={require('../images/unicorn.png')}
-                        style={{width:40,height:40}}
-                        />
-                        <View>
-                            <Text style={{
-                                color:"#345c74",
-                                fontFamily:"Bold",
-                                fontSize:13,
-                                paddingHorizontal:20,
-                                width:250
-                            }}>Lời nói tương thuật(Reported speech)</Text>
-                            <Text style={{
-                                color:"#f58084",
-                                fontFamily:"Medium",
-                                fontSize:15,
-                                paddingHorizontal:20
-                            }}>
-                                Số bài: 2
-                            </Text>
-                        </View>
-                        <Image
-                        source={require('../images/pl.png')}
-                        style={{width:20,height:20}}
-                        />
+                    style={styles.signIn}
+                    onPress={() => SigUpUserPost() }
+                    
+                >
+                <LinearGradient
+                    colors={['#08d4c4', '#01ab9d']}
+                    style={styles.signIn}
+                >
+                    <Text style={[styles.textSign, {
+                        color:'#fff'
+                    }]}>Đăng Ký tài khoản</Text>
+                </LinearGradient>
                 </TouchableOpacity>
+
                 <TouchableOpacity
-                onPress={() => navigation.navigate('LearningList')}
-                    style={{
-                        flexDirection:"row",
-                        backgroundColor:"#fef8e3",
-                        padding:15,
-                        marginHorizontal:5,
-                        borderRadius:20,
-                        alignItems:"center",
-                        marginTop:5
-                    }}>
-                        <Image
-                        source={require('../images/unicorn.png')}
-                        style={{width:40,height:40}}
-                        />
-                        <View>
-                            <Text style={{
-                                color:"#345c74",
-                                fontFamily:"Bold",
-                                fontSize:13,
-                                paddingHorizontal:20,
-                                width:250
-                            }}>Câu hỏi(Questions)</Text>
-                            <Text style={{
-                                color:"#f58084",
-                                fontFamily:"Medium",
-                                fontSize:15,
-                                paddingHorizontal:20
-                            }}>
-                                Số bài: 4
-                            </Text>
-                        </View>
-                        <Image
-                        source={require('../images/pl.png')}
-                        style={{width:20,height:20}}
-                        />
+                    onPress={() => navigation.goBack()}
+                    style={[styles.signIn, {
+                        borderColor: '#009387',
+                        borderWidth: 1,
+                        marginTop: 15
+                    }]}
+                >
+                    <Text style={[styles.textSign, {
+                        color: '#009387'
+                    }]}>Đăng nhập</Text>
                 </TouchableOpacity>
-                <TouchableOpacity
-                onPress={() => navigation.navigate('LearningList')}
-                    style={{
-                        flexDirection:"row",
-                        backgroundColor:"#fcf2ff",
-                        padding:15,
-                        marginHorizontal:5,
-                        borderRadius:20,
-                        alignItems:"center",
-                        marginTop:5
-                    }}>
-                        <Image
-                        source={require('../images/unicorn.png')}
-                        style={{width:40,height:40}}
-                        />
-                        <View>
-                            <Text style={{
-                                color:"#345c74",
-                                fontFamily:"Bold",
-                                fontSize:13,
-                                paddingHorizontal:20,
-                                width:250
-                            }}>Động từ -ING & động từ nguyên mẫu</Text>
-                            <Text style={{
-                                color:"#f58084",
-                                fontFamily:"Medium",
-                                fontSize:15,
-                                paddingHorizontal:20
-                            }}>
-                                Số bài: 4
-                            </Text>
-                        </View>
-                        <Image
-                        source={require('../images/pl.png')}
-                        style={{width:20,height:20}}
-                        />
-                </TouchableOpacity>
-                <TouchableOpacity
-                onPress={() => navigation.navigate('LearningList')}
-                    style={{
-                        flexDirection:"row",
-                        backgroundColor:"#fff0ee",
-                        padding:15,
-                        marginHorizontal:5,
-                        borderRadius:20,
-                        alignItems:"center",
-                        marginTop:5
-                    }}>
-                        <Image
-                        source={require('../images/unicorn.png')}
-                        style={{width:40,height:40}}
-                        />
-                        <View>
-                            <Text style={{
-                                color:"#345c74",
-                                fontFamily:"Bold",
-                                fontSize:13,
-                                paddingHorizontal:20,
-                                width:250
-                            }}>Danh từ(Nouns) & Đại từ(Pronouns)</Text>
-                            <Text style={{
-                                color:"#f58084",
-                                fontFamily:"Medium",
-                                fontSize:15,
-                                paddingHorizontal:20
-                            }}>
-                                Số bài: 9
-                            </Text>
-                        </View>
-                        <Image
-                        source={require('../images/pl.png')}
-                        style={{width:20,height:20}}
-                        />
-                </TouchableOpacity>
-                <TouchableOpacity
-                onPress={() => navigation.navigate('LearningList')}
-                    style={{
-                        flexDirection:"row",
-                        backgroundColor:"#fdddf3",
-                        padding:15,
-                        marginHorizontal:5,
-                        borderRadius:20,
-                        alignItems:"center",
-                        marginTop:5
-                    }}>
-                        <Image
-                        source={require('../images/unicorn.png')}
-                        style={{width:40,height:40}}
-                        />
-                        <View>
-                            <Text style={{
-                                color:"#345c74",
-                                fontFamily:"Bold",
-                                fontSize:13,
-                                paddingHorizontal:20,
-                                width:250
-                            }}>Mệnh đề quan hệ(Relative Clauses)</Text>
-                            <Text style={{
-                                color:"#f58084",
-                                fontFamily:"Medium",
-                                fontSize:15,
-                                paddingHorizontal:20
-                            }}>
-                                Số bài: 9
-                            </Text>
-                        </View>
-                        <Image
-                        source={require('../images/pl.png')}
-                        style={{width:20,height:20}}
-                        />
-                </TouchableOpacity>
-                <TouchableOpacity
-                onPress={() => navigation.navigate('LearningList')}
-                    style={{
-                        flexDirection:"row",
-                        backgroundColor:"#fef8e3",
-                        padding:15,
-                        marginHorizontal:5,
-                        borderRadius:20,
-                        alignItems:"center",
-                        marginTop:5
-                    }}>
-                        <Image
-                        source={require('../images/unicorn.png')}
-                        style={{width:40,height:40}}
-                        />
-                        <View>
-                            <Text style={{
-                                color:"#345c74",
-                                fontFamily:"Bold",
-                                fontSize:13,
-                                paddingHorizontal:20,
-                                width:250
-                            }}>Tính từ(Adj) & trạng từ(Adv)</Text>
-                            <Text style={{
-                                color:"#f58084",
-                                fontFamily:"Medium",
-                                fontSize:15,
-                                paddingHorizontal:20
-                            }}>
-                                Số bài: 10
-                            </Text>
-                        </View>
-                        <Image
-                        source={require('../images/pl.png')}
-                        style={{width:20,height:20}}
-                        />
-                </TouchableOpacity>
-                <TouchableOpacity
-                onPress={() => navigation.navigate('LearningList')}
-                    style={{
-                        flexDirection:"row",
-                        backgroundColor:"#fcf2ff",
-                        padding:15,
-                        marginHorizontal:5,
-                        borderRadius:20,
-                        alignItems:"center",
-                        marginTop:5
-                    }}>
-                        <Image
-                        source={require('../images/unicorn.png')}
-                        style={{width:40,height:40}}
-                        />
-                        <View>
-                            <Text style={{
-                                color:"#345c74",
-                                fontFamily:"Bold",
-                                fontSize:13,
-                                paddingHorizontal:20,
-                                width:250
-                            }}>Trật Tự Từ(Word Order)</Text>
-                            <Text style={{
-                                color:"#f58084",
-                                fontFamily:"Medium",
-                                fontSize:15,
-                                paddingHorizontal:20
-                            }}>
-                                Số bài: 8
-                            </Text>
-                        </View>
-                        <Image
-                        source={require('../images/pl.png')}
-                        style={{width:20,height:20}}
-                        />
-                </TouchableOpacity>
-                <TouchableOpacity
-                
-                onPress={() => navigation.navigate('LearningList')}
-                    style={{
-                        flexDirection:"row",
-                        backgroundColor:"#fff0ee",
-                        padding:15,
-                        marginHorizontal:5,
-                        borderRadius:20,
-                        alignItems:"center",
-                        marginTop:5,
-                        marginBottom:50
-                    }}>
-                        <Image
-                        source={require('../images/unicorn.png')}
-                        style={{width:40,height:40}}
-                        />
-                        <View>
-                            <Text style={{
-                                color:"#345c74",
-                                fontFamily:"Bold",
-                                fontSize:13,
-                                paddingHorizontal:20,
-                                width:250
-                            }}>Giới Từ(Prepositions)</Text>
-                            <Text style={{
-                                color:"#f58084",
-                                fontFamily:"Medium",
-                                fontSize:15,
-                                paddingHorizontal:20
-                            }}>
-                                Số bài: 16
-                            </Text>
-                        </View>
-                        <Image
-                        source={require('../images/pl.png')}
-                        style={{width:20,height:20}}
-                        />
-                </TouchableOpacity>
+            </View>
             </ScrollView>
-        </ImageBackground>
+        </View>
+      </View>
     );
-}
-export default LearningScreen;
+};
+
+export default SignInScreen;
+
+const styles = StyleSheet.create({
+    container: {
+      flex: 1, 
+      backgroundColor: '#009387'
+    },
+    header: {
+        flex: 1,
+        justifyContent: 'flex-end',
+        paddingHorizontal: 20,
+        paddingBottom: 50
+    },
+    footer: {
+        flex: Platform.OS === 'ios' ? 3 : 5,
+        backgroundColor: '#fff',
+        borderTopLeftRadius: 30,
+        borderTopRightRadius: 30,
+        paddingHorizontal: 20,
+        paddingVertical: 30
+    },
+    text_header: {
+        color: '#fff',
+        fontWeight: 'bold',
+        fontSize: 30
+    },
+    text_footer: {
+        color: '#05375a',
+        fontSize: 18
+    },
+    action: {
+        flexDirection: 'row',
+        marginTop: 10,
+        borderBottomWidth: 1,
+        borderBottomColor: '#f2f2f2',
+        paddingBottom: 5
+    },
+    textInput: {
+        flex: 1,
+        marginTop: Platform.OS === 'ios' ? 0 : -12,
+        paddingLeft: 10,
+        color: '#05375a',
+    },
+    button: {
+        alignItems: 'center',
+        marginTop: 50
+    },
+    signIn: {
+        width: '100%',
+        height: 50,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 10
+    },
+    textSign: {
+        fontSize: 18,
+        fontWeight: 'bold'
+    },
+    textPrivate: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        marginTop: 20
+    },
+    
+  errorMsg: {
+    color: "#FF0000",
+    fontSize: 14,
+  },
+    color_textPrivate: {
+        color: 'grey'
+    }
+  });

@@ -7,7 +7,10 @@ import {
   Platform,
   Image,
   StyleSheet,
-  Alert
+  Alert,
+  StatusBar,
+  Keyboard, 
+  TouchableWithoutFeedback
 } from "react-native";
 import LinearGradient from "react-native-linear-gradient";
 import * as Animatable from 'react-native-animatable';
@@ -18,13 +21,16 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { useSelector, useDispatch } from 'react-redux';
 import { loginAction } from '../redux/actions';
+import { useTheme } from 'react-native-paper';
 
 const SignInScreen = ({ navigation }) => {
 
-  const { userToken, mesLogin } = useSelector(state => state.booksReducer);
+  const { userToken, mesLogin, userInfo } = useSelector(state => state.booksReducer);
   const dispatch = useDispatch();
 
   const LoginAction = (email, pass) => dispatch(loginAction(email, pass));
+
+  const txtPassWordRef = useRef();
 
   const [data, setData] = React.useState({
     email: "",
@@ -35,32 +41,33 @@ const SignInScreen = ({ navigation }) => {
     isValidPassword: true,
   });
 
+  const { colors } = useTheme();
+  const { signIn } = React.useContext(AuthContext);
+
   useEffect(() => {
     UserToken();
-    if(mesLogin != null )
-        setTimeout( async () => {
-            Alert.alert('Thông báo' + mesLogin);
-        }, 500);
   }, [userToken, mesLogin]);
 
   function LoginActionDone() {
-    LoginAction(data.email, data.password)
-    setTimeout( async () => {
-      signIn()
-  }, 1000);
+    if(data.email && data.password){
+      LoginAction(data.email, data.password)
+      setTimeout( async () => {
+        signIn()
+      }, 1000);
+    }
 }
 
   const UserToken = async () =>{
     try {
       await AsyncStorage.setItem("userToken", userToken );
+      await AsyncStorage.setItem("user_info", JSON.stringify(userInfo) );
       console.log("login userToken async :" + userToken)
-      
+      console.log("login user_info async :" + JSON.stringify(userInfo) )
     } catch (error) {
       console.log(error);
     }
   }
-
-  const { signIn } = React.useContext(AuthContext);
+  
   const textInputChange = (val) => {
       const re = /\S+@\S+\.\S+/;
       if( val.trim().length >= 6 && re.test(val) ) {
@@ -102,71 +109,39 @@ const SignInScreen = ({ navigation }) => {
     })
   }
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.text_header}>Xin chào đến với Minn!</Text>
-      </View>
-      <View style={styles.footer}>
-        <Text style={styles.text_footer}>Tài khoản</Text>
-        <View style={styles.action}>
-        <Image
-            source={icons.email_icon}
-            resizeMode="contain"
-            style={{
-                width: 28,
-                height: 28,
-                tintColor: COLORS.lightGreen
-            }}
-        />
-          <TextInput
-            placeholder="Your Email"
-            onChangeText={(val) => textInputChange(val)}
-            style={styles.textInput}
-            autoCapitalize="none"
-          />
-          {data.check_textInputChange ?
-            <Image
-            source={icons.check_icon}
-            resizeMode="contain"
-            style={{
-                width: 28,
-                height: 28,
-                tintColor: COLORS.lightGreen
-            }}
-          />
-            : null}
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <View style={styles.container}>
+        <StatusBar backgroundColor='#009387' barStyle="light-content"/>
+        <View style={styles.header}>
+          <Text style={styles.text_header}>Xin chào đến với Unicorn!</Text>
         </View>
-        { data.isValidUser ? null : 
-            <Animatable.View animation="fadeInLeft" duration={500}>
-            <Text style={styles.errorMsg}>Tài khoản có độ dài tối thiểu 6 kí tự và dạng email!</Text>
-            </Animatable.View>
-            }
-        <Text style={[styles.text_footer, {
-          marginTop: 30
-        }]}>Mật khẩu</Text>
-        <View style={styles.action}>
-        <Image
-            source={icons.pass_word}
-            resizeMode="contain"
-            style={{
-                width: 28,
-                height: 28,
-                tintColor: COLORS.lightGreen
-            }}
+        <Animatable.View animation="fadeInUpBig"
+              style={[styles.footer, {
+                  backgroundColor: colors.background
+              }]}>
+          <Text style={styles.text_footer}>Tài khoản</Text>
+          <View style={styles.action}>
+          <Image
+              source={icons.email_icon}
+              resizeMode="contain"
+              style={{
+                  width: 28,
+                  height: 28,
+                  tintColor: COLORS.lightGreen
+              }}
           />
-          <TextInput
-            placeholder="Your Password"
-            onChangeText={(val) => handlerPasswordChange(val)}
-            secureTextEntry={data.secureTextEntry ? true : false}
-            style={styles.textInput}
-            autoCapitalize="none"
-          />
-          <TouchableOpacity
-            onPress={updateSecureTextEntry}
-          >
-            {data.secureTextEntry ?
+            <TextInput
+              placeholder="Your Email"
+              onChangeText={(val) => textInputChange(val)}
+              style={styles.textInput}
+              autoCapitalize="none"
+              returnKeyType="next"
+              autoCorrect={false}
+              onSubmitEditing={() => txtPassWordRef.current.focus()}
+            />
+            {data.check_textInputChange ?
               <Image
-              source={icons.unEye_icon}
+              source={icons.check_icon}
               resizeMode="contain"
               style={{
                   width: 28,
@@ -174,101 +149,164 @@ const SignInScreen = ({ navigation }) => {
                   tintColor: COLORS.lightGreen
               }}
             />
-              :
-              <Image
-              source={icons.eys_icon}
+              : null}
+          </View>
+          { data.isValidUser ? null : 
+              <Animatable.View animation="fadeInLeft" duration={500}>
+              <Text style={styles.errorMsg}>Tài khoản có độ dài tối thiểu 6 kí tự và dạng email!</Text>
+              </Animatable.View>
+              }
+          <Text style={[styles.text_footer, {
+            marginTop: 30
+          }]}>Mật khẩu</Text>
+          <View style={styles.action}>
+          <Image
+              source={icons.pass_word}
               resizeMode="contain"
               style={{
                   width: 28,
                   height: 28,
                   tintColor: COLORS.lightGreen
               }}
-            />}
-          </TouchableOpacity>
-        </View>
-        { data.isValidPassword ? null : 
-            <Animatable.View animation="fadeInLeft" duration={500}>
-            <Text style={styles.errorMsg}>Mật khẩu có độ tài tối thiểu 6 ký tự!</Text>
-            </Animatable.View>
-            }
-
-        <View style={styles.button}>
-          <TouchableOpacity
-            style={styles.signIn}
-            onPress={ ()=> {LoginActionDone() }  }
-            // onPress={() => { signIn() }}
-            // , signIn()
-          >
-            <LinearGradient
-              colors={["#08d4c4", "#01ab9d"]}
-              style={styles.signIn}
+            />
+            <TextInput
+              placeholder="Your Password"
+              onChangeText={(val) => handlerPasswordChange(val)}
+              secureTextEntry={data.secureTextEntry ? true : false}
+              style={styles.textInput}
+              autoCapitalize="none"
+              ref={txtPassWordRef}
+            />
+            <TouchableOpacity
+              onPress={updateSecureTextEntry}
             >
-              <Text style={styles.textSign} >Đăng nhập</Text>
-            </LinearGradient>
-          </TouchableOpacity>
+              {data.secureTextEntry ?
+                <Image
+                source={icons.unEye_icon}
+                resizeMode="contain"
+                style={{
+                    width: 28,
+                    height: 28,
+                    tintColor: COLORS.lightGreen
+                }}
+              />
+                :
+                <Image
+                source={icons.eys_icon}
+                resizeMode="contain"
+                style={{
+                    width: 28,
+                    height: 28,
+                    tintColor: COLORS.lightGreen
+                }}
+              />}
+            </TouchableOpacity>
+          </View>
+          { data.isValidPassword ? null : 
+              <Animatable.View animation="fadeInLeft" duration={500}>
+              <Text style={styles.errorMsg}>Mật khẩu có độ tài tối thiểu 6 ký tự!</Text>
+              </Animatable.View>
+              }
 
-          <TouchableOpacity
-              onPress={() => navigation.navigate('SignUpScreen')}
-              style={[styles.signIn, {
-                  borderColor: '#009387',
-                  borderWidth: 1,
-                  marginTop: 15
+          { mesLogin !== 'Đăng nhập thành công!' ? <Animatable.View animation="fadeInLeft" duration={500}>
+            <Text style={styles.errorMsg}>{mesLogin}</Text>
+            </Animatable.View> : null
+          }
+          <View style={styles.button}>
+            <TouchableOpacity
+              style={styles.signIn}
+              onPress={ ()=> {LoginActionDone() }  }
+              // onPress={() => { signIn() }}
+              // , signIn()
+            >
+              <LinearGradient
+                colors={["#08d4c4", "#01ab9d"]}
+                style={styles.signIn}
+              >
+                <Text style={styles.textSign} >Đăng nhập</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+                onPress={() => navigation.navigate('SignUpScreen')}
+                style={[styles.signIn, {
+                    borderColor: '#009387',
+                    borderWidth: 1,
+                    marginTop: 15
+                }]}
+            >
+                <Text style={[styles.textSign, {
+                    color: '#009387'
+                }]}>Đăng kí tài khoản</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={styles.signInW}>
+
+            <TouchableOpacity
+              onPress={() => Alert.alert(
+                "Thông báo",
+                'Tính năng đang được phát triển thêm',
+                [
+                    {
+                    text: 'Xác nhận',
+                    }
+                ],
+              )}
+              style={[styles.signInWith, {
+                borderColor: '#009387',
+                borderWidth: 1,
+                marginTop: 15,
+                flexDirection: 'row',
+                flex: 1,
+                marginLeft: 5,
+                marginRight: 5
               }]}
-          >
+            >
+              <Image
+                source={icons.face_book_icon}
+                resizeMode="contain"
+                style={{
+                    width: 25,
+                    height: 25,
+                }}
+              />
               <Text style={[styles.textSign, {
-                  color: '#009387'
-              }]}>Đăng kí tài khoản</Text>
-          </TouchableOpacity>
-        </View>
-        <View style={styles.signInW}>
+                color: '#385592'
+              }]}>FACEBOOK</Text>
+            </TouchableOpacity>
 
-          <TouchableOpacity
-            style={[styles.signInWith, {
-              borderColor: '#009387',
-              borderWidth: 1,
-              marginTop: 15,
-              flexDirection: 'row',
-              flex: 1,
-              marginLeft: 5,
-              marginRight: 5
-            }]}
-          >
-            <Image
-              source={icons.face_book_icon}
-              resizeMode="contain"
-              style={{
-                  width: 25,
-                  height: 25,
-              }}
-            />
-            <Text style={[styles.textSign, {
-              color: '#385592'
-            }]}>FACEBOOK</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.signInWith, {
-              borderColor: '#009387',
-              borderWidth: 1,
-              marginTop: 15,
-              flex: 1,
-              flexDirection: 'row',
-              marginLeft: 5,
-              marginRight: 5
-            }]}
-          >
-            <Image source={require('./google.png')}
-                style={{width:28,height:24 , marginRight:5, marginLeft: 5}}            
-            />
-            <Text style={[styles.textSign, {
-              color: '#666664'
-            }]}>GOOGLE</Text>
-          </TouchableOpacity>
-        </View>
+            <TouchableOpacity
+              onPress={() => Alert.alert(
+                "Thông báo",
+                'Tính năng đang được phát triển thêm',
+                [
+                    {
+                    text: 'Xác nhận',
+                    }
+                ],
+              )}
+              style={[styles.signInWith, {
+                borderColor: '#009387',
+                borderWidth: 1,
+                marginTop: 15,
+                flex: 1,
+                flexDirection: 'row',
+                marginLeft: 5,
+                marginRight: 5
+              }]}
+            >
+              <Image source={require('./google.png')}
+                  style={{width:28,height:24 , marginRight:5, marginLeft: 5}}            
+              />
+              <Text style={[styles.textSign, {
+                color: '#666664'
+              }]}>GOOGLE</Text>
+            </TouchableOpacity>
+          </View>
+        </Animatable.View>
       </View>
+    </TouchableWithoutFeedback>
 
-
-    </View>
   );
 };
 

@@ -11,6 +11,7 @@ import {
 import jwt_decode from 'jwt-decode';
 import { useSelector, useDispatch } from 'react-redux';
 import { getBooks, addBookmark, removeBookmark, getBookBestSeller, getBookTheLatest, getBookComingSoon } from '../redux/actions';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { COLORS, FONTS, SIZES, icons, images } from '../constants';
 
@@ -36,6 +37,21 @@ const Home = ({ navigation }) => {
     const addToBookmarkList = book => dispatch(addBookmark(book));
     const removeFromBookmarkList = book => dispatch(removeBookmark(book));
   
+    const [userInfo, setUserInfo] = React.useState(null);
+
+  useEffect(() => {
+      getDataUserInfo();
+  }, [userInfo]);
+
+  const getDataUserInfo = () =>{
+      try {
+        AsyncStorage.getItem("user_info").then((value) => {
+            value != null ? setUserInfo(JSON.parse(value)) : null
+        });
+      } catch (error) {
+          console.log(error);
+      }
+  }
     useEffect(() => {
       fetchBooks();
       fetchBooks1();
@@ -61,7 +77,7 @@ const Home = ({ navigation }) => {
     };
 
     const profileData = {
-        name: 'Khánh Linh',
+        name: userInfo ? userInfo.name : "How are you to day",
         point: 200
     }
     
@@ -141,23 +157,25 @@ const Home = ({ navigation }) => {
         },
     ]
 
-    const [profile, setProfile] = React.useState(profileData);
+    // const [profile, setProfile] = React.useState(profileData);
     const [categories, setCategories] = React.useState(categoriesData);
     const [selectedCategory, setSelectedCategory] = React.useState(1);
 
-    function renderHeader(profile) {
+    function renderHeader(userInf) {
         return (
             <View style={{ flex: 1, flexDirection: 'row', paddingHorizontal: SIZES.padding, alignItems: 'center' }}>
                 {/* Greetings */}
                 <View style={{ flex: 1 }}>
                     <View style={{ marginRight: SIZES.padding }}>
                         <Text style={{ ...FONTS.h3, color: COLORS.white }}>Good Morning</Text>
-                        <Text style={{ ...FONTS.h2, color: COLORS.white }}>{profile.name}</Text>
+                        {userInf ? 
+                            <Text style={{ ...FONTS.h2, color: COLORS.white }}>{userInf.name}</Text>
+                        : null} 
                     </View>
                 </View>
 
                 {/* Points */}
-                <TouchableOpacity
+                {/* <TouchableOpacity
                     style={{
                         backgroundColor: COLORS.primary,
                         height: 40,
@@ -181,7 +199,7 @@ const Home = ({ navigation }) => {
 
                         <Text style={{ marginLeft: SIZES.base, color: COLORS.white, ...FONTS.body3 }}>{profile.point} point</Text>
                     </View>
-                </TouchableOpacity>
+                </TouchableOpacity> */}
             </View>
         )
     }
@@ -284,7 +302,7 @@ const Home = ({ navigation }) => {
                 >
                     {/* Book Cover */}
                     <Image
-                    source={{uri: item.bookCover}}
+                    source={{uri:`http://10.0.2.2:3000${item.bookCover}`}}
                         resizeMode="cover"
                         style={{
                             width: 180,
@@ -324,12 +342,13 @@ const Home = ({ navigation }) => {
             <View style={{ flex: 1 }}>
                 {/* Header */}
                 <View style={{ paddingHorizontal: SIZES.padding, flexDirection: 'row', justifyContent: 'space-between' }}>
-                    <Text style={{ ...FONTS.h2, color: COLORS.white }}>My Book</Text>
+                    <Text style={{ ...FONTS.h2, color: COLORS.white }}>Sách của bạn</Text>
 
                     <TouchableOpacity
-                        onPress={() => console.log("See More")}
+                        onPress={() => navigation.navigate("Search")}
+                        
                     >
-                        <Text style={{ ...FONTS.body3, color: COLORS.lightGray, alignSelf: 'flex-start', textDecorationLine: 'underline' }}>see more</Text>
+                        <Text style={{ ...FONTS.body3, color: COLORS.lightGray, alignSelf: 'flex-start', textDecorationLine: 'underline' }}>xem thêm</Text>
                     </TouchableOpacity>
                 </View>
 
@@ -495,9 +514,9 @@ const Home = ({ navigation }) => {
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.black }}>
             {/* Header Section */}
-            <View style={{ height: 200 }}>
-                {renderHeader(profile)}
-                {renderButtonSection()}
+            <View style={{ height: 100 }}>
+                {renderHeader(userInfo)}
+                {/* {renderButtonSection()} */}
             </View>
 
             {/* Body Section */}

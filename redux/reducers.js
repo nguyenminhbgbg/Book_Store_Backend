@@ -17,6 +17,7 @@ import {
   LIGHT2_MODE,
   DARK_MODE,
   LOGIN_ACTION,
+  LOGOUT_ACTION,
   SIGN_UP_ACTION
 } from './actions';
 
@@ -39,14 +40,27 @@ const initialState = {
   userToken: null,
   mesLogin: null,
   mesRegister: null,
-
+  userInfo: null,
 
 };
 
 function booksReducer(state = initialState, action) {
   switch (action.type) {
-    case LOGIN_ACTION:
-      return { ...state, userToken: action.payload.token , mesLogin: action.payload.message};
+    case LOGIN_ACTION:{
+      state.mesLogin = action.payload.message;
+      if(action.payload.token){
+        state.userToken = action.payload.token;
+        state.userInfo = action.payload.user;
+      }
+      return { ...state };
+    }
+    case LOGOUT_ACTION: {
+      state.mesLogin= null;
+      state.userToken = null;
+      state.userInfo = null;
+      state.mesRegister = null;
+      return {...state };
+    }
     case SIGN_UP_ACTION:
     return { ...state , mesRegister: action.payload.message };
     case GET_BOOKS:

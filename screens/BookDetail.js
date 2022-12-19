@@ -58,7 +58,7 @@ const BookDetail = ({ route, navigation }) => {
         return (
             <View style={{ flex: 1 }}>
                 <ImageBackground
-                    source={{uri: book.bookCover}}
+                    source={{uri: `http://10.0.2.2:3000${book.bookCover}`}}
                     // source={book.bookCover}
                     resizeMode="cover"
                     style={{
@@ -101,7 +101,7 @@ const BookDetail = ({ route, navigation }) => {
                     </TouchableOpacity>
 
                     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-                        <Text style={{ ...FONTS.h3, color: book.navTintColor }}>Book Detail</Text>
+                        <Text style={{ ...FONTS.h3, color: book.navTintColor }}>Chi tiết sách</Text>
                     </View>
 
                     <TouchableOpacity
@@ -124,7 +124,7 @@ const BookDetail = ({ route, navigation }) => {
                 {/* Book Cover */}
                 <View style={{ flex: 5, paddingTop: SIZES.padding2, alignItems: 'center' }}>
                     <Image
-                        source={{uri: book.bookCover}}
+                        source={{uri: `http://10.0.2.2:3000${book.bookCover}`}}
                         // source={book.bookCover}
                         resizeMode="contain"
                         style={{
@@ -162,7 +162,7 @@ const BookDetail = ({ route, navigation }) => {
                     {/* Pages */}
                     <View style={{ flex: 1, paddingHorizontal: SIZES.radius, alignItems: 'center' }}>
                         <Text style={{ ...FONTS.h3, color: COLORS.white }}>{book.pageNo}</Text>
-                        <Text style={{ ...FONTS.body4, color: COLORS.white }}>Number of Page</Text>
+                        <Text style={{ ...FONTS.body4, color: COLORS.white }}>Số trang</Text>
                     </View>
 
                     <LineDivider />
@@ -170,7 +170,7 @@ const BookDetail = ({ route, navigation }) => {
                     {/* Language */}
                     <View style={{ flex: 1, alignItems: 'center' }}>
                         <Text style={{ ...FONTS.h3, color: COLORS.white }}>{book.language}</Text>
-                        <Text style={{ ...FONTS.body4, color: COLORS.white }}>Language</Text>
+                        <Text style={{ ...FONTS.body4, color: COLORS.white }}>Ngôn ngữ</Text>
                     </View>
                 </View>
             </View>
@@ -219,7 +219,7 @@ const BookDetail = ({ route, navigation }) => {
                         { useNativeDriver: false }
                     )}
                 >
-                    <Text style={{ ...FONTS.h2, color: COLORS.white, marginBottom: SIZES.padding }}>Description</Text>
+                    <Text style={{ ...FONTS.h2, color: COLORS.white, marginBottom: SIZES.padding }}>Giới thiệu</Text>
                     <Text style={{ ...FONTS.body2, color: COLORS.lightGray }}>{book.description}</Text>
                 </ScrollView>
             </View>
@@ -273,7 +273,7 @@ const BookDetail = ({ route, navigation }) => {
                         navigation.navigate("ReadingBook", {book})
                         )}
                 >
-                    <Text style={{ ...FONTS.h3, color: COLORS.white }}>Start Reading</Text>
+                    <Text style={{ ...FONTS.h3, color: COLORS.white }}>Bắt đầu đọc</Text>
                 </TouchableOpacity>
             </View>
         )
